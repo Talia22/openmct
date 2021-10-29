@@ -370,7 +370,8 @@ class CouchObjectProvider {
         }
 
         return () => {
-            this.observers[keyString] = this.observers[keyString].filter(observer => observer !== callback);
+            const observers = this.observers[keyString] || [];
+            this.observers[keyString] = observers.filter(observer => observer !== callback);
             if (this.observers[keyString].length === 0) {
                 delete this.observers[keyString];
                 if (Object.keys(this.observers).length === 0 && this.isObservingObjectChanges()) {
