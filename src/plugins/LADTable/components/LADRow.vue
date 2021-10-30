@@ -98,7 +98,7 @@ export default {
 
         this.valueMetadata = this
             .metadata
-            .valuesForHints(['range'])[0];
+            .valuesForHints(['range'])[0] || this.firstNonDomainAttribute(this.metadata);
 
         this.valueKey = this.valueMetadata.key;
 
@@ -211,6 +211,11 @@ export default {
         },
         setUnit() {
             this.unit = this.valueMetadata.unit || '';
+        },
+        firstNonDomainAttribute(metadata) {
+            return metadata
+                .values()
+                .find(metadatum => metadatum.hints.domain === undefined && metadatum.key !== 'name');
         }
     }
 };
