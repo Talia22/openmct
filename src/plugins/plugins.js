@@ -36,6 +36,7 @@ define([
     './URLIndicatorPlugin/URLIndicatorPlugin',
     './telemetryMean/plugin',
     './plot/plugin',
+    './charts/plugin',
     './telemetryTable/plugin',
     './staticRootPlugin/plugin',
     './notebook/plugin',
@@ -87,6 +88,7 @@ define([
     URLIndicatorPlugin,
     TelemetryMean,
     PlotPlugin,
+    ChartPlugin,
     TelemetryTablePlugin,
     StaticRootPlugin,
     Notebook,
@@ -186,9 +188,10 @@ define([
         return GeneratorPlugin;
     };
 
-    plugins.ExampleImagery = ExampleImagery;
+    plugins.ExampleImagery = ExampleImagery.default;
     plugins.ImageryPlugin = ImageryPlugin;
     plugins.Plot = PlotPlugin.default;
+    plugins.Chart = ChartPlugin.default;
     plugins.TelemetryTable = TelemetryTablePlugin;
 
     plugins.SummaryWidget = SummaryWidget;
