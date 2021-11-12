@@ -23,7 +23,6 @@ import TelemetryAPI from './TelemetryAPI';
 const { TelemetryCollection } = require("./TelemetryCollection");
 
 describe('Telemetry API', function () {
-    const NO_PROVIDER = 'No provider found';
     let openmct;
     let telemetryAPI;
     let mockTypeService;
@@ -69,6 +68,12 @@ describe('Telemetry API', function () {
                 },
                 type: 'sample-type'
             };
+
+            openmct.notifications = {
+                error: () => {
+                    console.log('sample error notification');
+                }
+            };
         });
 
         it('provides consistent results without providers', function (done) {
@@ -76,12 +81,11 @@ describe('Telemetry API', function () {
 
             expect(unsubscribe).toEqual(jasmine.any(Function));
 
-            telemetryAPI.request(domainObject).then(
-                () => {},
-                (error) => {
-                    expect(error).toBe(NO_PROVIDER);
-                }
-            ).finally(done);
+            telemetryAPI.request(domainObject)
+                .then((data) => {
+                    expect(data).toEqual([]);
+                })
+                .finally(done);
         });
 
         it('skips providers that do not match', function (done) {
@@ -101,8 +105,6 @@ describe('Telemetry API', function () {
                 expect(telemetryProvider.supportsRequest)
                     .toHaveBeenCalledWith(domainObject, jasmine.any(Object));
                 expect(telemetryProvider.request).not.toHaveBeenCalled();
-            }, (error) => {
-                expect(error).toBe(NO_PROVIDER);
             }).finally(done);
         });
 

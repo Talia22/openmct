@@ -145,7 +145,7 @@ define([
         this.formatMapCache = new WeakMap();
         this.valueFormatterCache = new WeakMap();
 
-        this.hasRequestProvider = undefined;
+        this.noRequestProviderForAllObjects = false;
     }
 
     /**
@@ -309,6 +309,10 @@ define([
      *          telemetry data
      */
     TelemetryAPI.prototype.request = function (domainObject) {
+        if (this.noRequestProviderForAllObjects) {
+            return Promise.resolve([]);
+        }
+
         if (arguments.length === 1) {
             arguments.length = 2;
             arguments[1] = {};
@@ -317,11 +321,25 @@ define([
         this.standardizeRequestOptions(arguments[1]);
         const provider = this.findRequestProvider.apply(this, arguments);
         if (!provider) {
-            this.openmct.notifications.error('Missing request provider, see console for details');
+            this.noRequestProviderForAllObjects = this.requestProviders.every(requestProvider => {
+                const supportsRequest = requestProvider.supportsRequest.apply(requestProvider, arguments);
+                const hasRequestProvider = Object.hasOwn(requestProvider, 'request');
 
-            const { name, identifier } = domainObject;
-            const msg = `Missing request provider for domainObject, name: ${name}, identifier: ${JSON.stringify(identifier)}`;
-            console.error(msg);
+                return supportsRequest && hasRequestProvider;
+            });
+            let message = '';
+            let detailMessage = '';
+            if (this.noRequestProviderForAllObjects) {
+                message = 'Missing request providers, see console for details';
+                detailMessage = 'Missing request provider for all request providers';
+            } else {
+                message = 'Missing request provider, see console for details';
+                const { name, identifier } = domainObject;
+                detailMessage = `Missing request provider for domainObject, name: ${name}, identifier: ${JSON.stringify(identifier)}`;
+            }
+
+            this.openmct.notifications.error(message);
+            console.error(detailMessage);
 
             return Promise.resolve([]);
         }
